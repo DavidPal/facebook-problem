@@ -1,0 +1,115 @@
+\documentclass[12pt]{article}
+
+\usepackage{fullpage}
+\usepackage{amssymb,amsthm,amsmath}
+
+\newcommand{\R}{\mathbb{R}}
+
+\DeclareMathOperator{\Exp}{\mathbf{E}}
+
+\title{Facebook Posting Problem}
+\author{Utkarsh \and D\'avid P\'al}
+
+\begin{document}
+
+\maketitle
+
+Assume that an adversary places on Facebook $n$ posts in time interval $[0,1]$.
+We denote the times of these posts $x_1, x_2, \dots, x_n$. Without loss of
+generality we assume that $0 < x_1 < x_2 < \dots < x_n < 1$. For convenience we
+define $x_0 = 0$ and $x_{n+1} = 1$.
+
+We observe the posts in real time and our goal is to choose a point in time $Z
+\in [0,1]$ when to put up a Facebook post. Our goal is to maximize the total
+time on top, which is defined as
+$$
+\min_{i=1,2,\dots,{n+1}} \max\{0, x_i - Z \}  \; .
+$$
+In other words, if $x_{i-1} \le Z < x_i$ then the time on top is $Z - x_i$.
+
+It is clear that the worst-case time on top of any online deterministic strategy
+is zero. Obviously, we need a randomized strategy.
+
+\section{Oblivious randomized strategy}
+
+Consider a very simple oblivious strategy that chooses $Z$ uniformly at random from $[0,1]$.
+We claim that expected time on top of this strategy is
+$$
+\frac{1}{2} \sum_{i=1}^{n+1} (x_i - x_{i-1})^2 \; .
+$$
+To see this let $A_i$ be the event that $Z \in [x_{i-1}, x_i)$. Clearly
+$\Pr[A_i] = \Pr[Z \in [x_{i-1}, x_i)] = (x_i - x_{i-1})$. Futhermore,
+$\Exp[Z | A_i] = \frac{1}{2} (x_i - x_{i-1})$. Thus, the expected time on top
+is
+$$
+\sum_{i=1}^{n+1} \Pr[A_i] \cdot \Exp[Z | A_i] = \frac{1}{2} \sum_{i=1}^{n+1} (x_i - x_{i-1})^2 \; .
+$$
+
+The competitive ratio of this strategy at least $\frac{1}{4\sqrt{n}}$. To see that let $a_i = x_i - x_{i-1}$ be the gaps.
+$$
+\frac{\frac{1}{2} \sum_{i=1}^{n+1} (x_i - x_{i-1})^2}{\max_{i=1,2,\dots,n+1}  (x_i - x_{i-1}) }
+= \frac{\frac{1}{2} \sum_{i=1}^{n+1} a_i^2}{\max_{i=1,2,\dots,n+1} a_i}
+$$
+Without loss of generality assume that $a_1 \ge a_2 \ge \dots \ge a_{n+1}$. Using
+the inequality between arithmetic and quadratic mean, we get
+$$
+\frac{\frac{1}{2} \sum_{i=1}^{n+1} a_i^2}{\max_{i=1,2,\dots,n+1} a_i}
+= \frac{\frac{1}{2} \sum_{i=1}^{n+1} a_i^2}{a_1}
+= \frac{1}{2} \left( a_1 + \frac{\sum_{i=2}^{n+1} a_i^2}{a_1} \right)
+\ge \frac{1}{2} \left(a_1 + \frac{\left(\sum_{i=2}^{n+1} a_i \right)^2}{n a_1} \right)
+= \frac{1}{2} \left(a_1 + \frac{\left(1 - a_1 \right)^2}{n a_1} \right) \; .
+$$
+We lower bound the last expression by case analysis. If $a_1 \ge
+\frac{1}{2\sqrt{n}}$, the competitive ratio is at least $\frac{1}{2} a_1 \ge
+\frac{1}{4\sqrt{n}}$. On the other hand, if $a_1 < \frac{1}{2\sqrt{n}}$, the
+competitive ratio is at least
+$$
+\frac{1}{2} \frac{\left(1 - a_1 \right)^2}{n a_1} \ge \frac{(1 - a_1)^2}{\sqrt{n}} \ge \frac{1}{4 \sqrt{n}} \; .
+$$
+
+The above analysis is tight within constant factor. The competitive ratio of the strategy is at most $1/\sqrt{n}$.
+It suffices to choose $x_i = \frac{1}{\sqrt{n}} + (1 - \frac{1}{\sqrt{n}}) (i - 1) / n$ for all $i=1,2,\dots,n+1$.
+Then, $a_1 = \frac{1}{\sqrt{n}}$ and $a_2 = a_3 = \dots = a_{n+1} = \frac{1 - \frac{1}{\sqrt{n}}}{n}$.
+The competitive ratio is at most
+$$
+\frac{1}{2} \frac{\sum_{i=1}^n a_i^2}{a_1} = \frac{1}{2} \left( a_1 + \frac{(1 - \frac{1}{\sqrt{n}})^2}{n a_1} \right) =
+\frac{1}{2} \left( \frac{1}{\sqrt{n}} + \frac{(1 - \frac{1}{\sqrt{n}})^2}{\sqrt{n}} \right) \le \frac{1}{\sqrt{n}} \; .
+$$
+
+
+\section{Online strategy}
+
+Let $U_1, \dots, U_n, U_{n+1}$ be random variables
+where $U_i \sim Exp(\lambda_i)$ and $\lambda_i = \frac{\sqrt{n-i+1}}{1 - x_{i-1}}$.
+Let $i$ be the smallest index such that $U_i < x_i - x_{i-1}$.
+The strategy puts up the post at time $Z = x_{i-1} + U_i$.
+
+Let $a_i = x_i - x_{i-1}$. Then the time on top is
+\begin{align*}
+& \Pr[U_1 < a_1] \Exp[a_1 - U_1 ~|~ U_1 < a_1]  \\
+& \qquad + \Pr[U_1 \ge a_1] \Pr[U_2 < a_2] \Exp[a_2 - U_2 ~|~ U_2 < a_2 ] \\
+& \qquad + \Pr[U_1 \ge a_1] \Pr[U_2 \ge a_2] \Pr[U_3 < a_3] \Exp[a_3 - U_3 ~|~ U_3 < a_3] + \dots \\
+& = \int_0^{a_1} (a_1 - x) \lambda_1 e^{-\lambda_1 x} dx \\
+& \qquad + e^{-\lambda_1 a_1} \int_{0}^{a_2} (a_2 - x) \lambda_2 e^{-\lambda_2 x} dx \\
+& \qquad + e^{-\lambda_1 a_1} e^{-\lambda_2 a_2} \int_{0}^{a_3} (a_3 - x) \lambda_3 e^{-\lambda_3 x} dx + \dots \\
+\end{align*}
+
+Let us calculate
+\begin{align*}
+\int_0^{a_i} (a_i - x) \lambda_i e^{-\lambda_i x} dx
+& = a_i \lambda_i \int_0^{a_i} e^{-\lambda_i x} dx - \lambda_i  \int_0^{a_i} x e^{-\lambda_i x} dx \\
+& = a_i \lambda_i \frac{1 - e^{-a_i \lambda_i}}{\lambda_i} - \lambda_i \frac{1 - (a_i \lambda_i + 1) e^{-a_i \lambda_i}}{\lambda_i^2} \\
+& = a_i (1 - e^{-a_i \lambda_i}) - \frac{1 - (a_i \lambda_i + 1) e^{-a_i \lambda_i}}{\lambda_i} \\
+& = a_i - \frac{1}{\lambda_i} + \frac{1}{\lambda_i} e^{-a_i \lambda_i} \\
+\end{align*}
+
+The expected time on top is
+\begin{align*}
+a_1 - \frac{1}{\lambda_1} + \frac{1}{\lambda_1} e^{-a_1 \lambda_1}
++ e^{-\lambda_1 a_1} \left(  a_2 - \frac{1}{\lambda_2} + \frac{1}{\lambda_2} e^{-a_2 \lambda_2} \right)
++ e^{-\lambda_1 a_1} e^{-\lambda_2 a_2} \left(  a_3 - \frac{1}{\lambda_3} + \frac{1}{\lambda_3} e^{-a_3 \lambda_3} \right)
++ \dots
+\end{align*}
+
+
+\end{document}
